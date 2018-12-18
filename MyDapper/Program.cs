@@ -11,8 +11,8 @@ namespace MyDapper
     {
         static void Main(string[] args)
         {
-
-            var i = QueryPaging(new User { Name = "Dapper01" }, 3, 56);
+            BatchOperation.Batch.Update();
+            //var i = QueryPaging(new User { Name = "Dapper01" }, 3, 56);
         }
 
         /// <summary>
