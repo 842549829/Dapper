@@ -1,32 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
+using FastMember;
 using MyDapper.Model;
 
-namespace MyDapper.BatchOperation
+namespace MyDapper.Core.BatchOperation
 {
-
-    /* 表结构
-        DROP TABLE [dbo].[Product]
-        GO
-        CREATE TABLE [dbo].[Product] (
-        [Id] varchar(36) NOT NULL ,
-        [Name] varchar(255) NOT NULL ,
-        [Price] decimal(18,4) NOT NULL 
-        )
-        GO
-        ALTER TABLE [dbo].[Product] ADD PRIMARY KEY ([Id])
-        GO
-     */
-
     public class Batch
     {
         public static List<string> GetList()
@@ -163,6 +146,85 @@ namespace MyDapper.BatchOperation
             }
         }
 
+        public static void Inserts()
+        {
+            const int count = 10000;
+            List<Order> orders = new List<Order>();
+            List<Product> products = new List<Product>();
+            for (var i = 0; i < count; i++)
+            {
+                Product product = new Product
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = $"商品{i}",
+                    Price = i * 0.8M
+                };
+                products.Add(product);
+                Order order = new Order
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ProductId = product.Id,
+                    Remake = "suggestions",
+                    Status = 1
+                };
+                orders.Add(order);
+            }
+            var productsDataTable = Batch.ConvertToDataTable(products);
+            var ordersDataTable = Batch.ConvertToDataTable(orders);
+            Dictionary<string, DataTable> dataTables = new Dictionary<string, DataTable>
+            {
+
+                { "Product", productsDataTable},
+                { "Orders",ordersDataTable}
+            };
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Inserts(SqLiteHelper.SqlServerConnection, dataTables);
+            stopwatch.Stop();
+            Console.WriteLine("耗时：" + stopwatch.ElapsedMilliseconds);
+        }
+
+        public static void Inserts(string connectionString, Dictionary<string, DataTable> dataTables, int batchSize = 0)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                }
+                
+                using (SqlTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        SqlCommand command = new SqlCommand();
+                        command.Transaction = transaction;
+                        command.CommandText = "update ....";
+                        command.ExecuteNonQuery();
+
+
+                        foreach (var item in dataTables)
+                        {
+                            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
+                            {
+                                bulkCopy.BatchSize = batchSize;
+                                bulkCopy.DestinationTableName = item.Key;
+                                bulkCopy.WriteToServer(item.Value);
+                            }
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Console.WriteLine(ex.Message);
+                        transaction.Rollback();
+                    }
+                }
+            }
+        }
+
         public static DataTable ConvertToDataTable<T>(IList<T> data)
         {
             PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(T));
@@ -183,4 +245,40 @@ namespace MyDapper.BatchOperation
             return table;
         }
     }
+
+    public class BatchExtension
+    {
+        public static void Insert()
+        {
+            List<Product> products = new List<Product>();
+            for (int i = 0; i < 10000; i++)
+            {
+                Product product = new Product
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = $"的干法国防科大和{i}",
+                    Price = i
+                };
+                products.Add(product);
+            }
+
+            var copyParameters = new[]
+            {
+                nameof(Product.Id),
+                nameof(Product.Name),
+                nameof(Product.Price)
+            };
+
+            using (var sqlCopy = new SqlBulkCopy(SqLiteHelper.SqlServerConnection))
+            {
+                sqlCopy.DestinationTableName = "[Product]";
+                sqlCopy.BatchSize = 500;
+                using (var reader = ObjectReader.Create(products, copyParameters))
+                {
+                    sqlCopy.WriteToServer(reader);
+                }
+            }
+        }
+    }
+
 }

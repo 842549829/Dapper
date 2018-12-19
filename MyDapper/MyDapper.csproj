@@ -72,5 +72,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyDapper.Model\MyDapper.Model.csproj">
+      <Project>{b4c19ddd-1ae5-4a37-b5bf-3b76da0b9e4d}</Project>
+      <Name>MyDapper.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
