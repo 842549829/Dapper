@@ -103,7 +103,6 @@ namespace MyDapper.DbCommon.Repositories
             sqlCommand.ExecuteNonQuery();
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
             {
-
                 bulkCopy.DestinationTableName = tempTableName;
                 using (var reader = new ObjectReader(type, dataList, BulkCopyRepositoryExtension.GetFields(type)))
                 {
@@ -111,6 +110,30 @@ namespace MyDapper.DbCommon.Repositories
                 }
             }
             sqlCommand.CommandText = $"UPDATE T SET {updateFields} FROM {dataTableName} T INNER JOIN {tempTableName} Temp ON {innerJoin}; DROP TABLE {tempTableName};";
+            sqlCommand.ExecuteNonQuery();
+        }
+
+        public void BatchDelete<T>(List<T> idList)
+        {
+            var type = typeof(T);
+            var id = GetProperties(type);
+            var innerJoin = $"a.{id}=b.{id}";
+            var tempTableName = $"#TmpTable{type.Name}";
+            var dataTableName = BulkCopyRepositoryExtension.GetTableName(type);
+            var sqlConnection = (SqlConnection)_unit.Connection;
+            var sqlTransaction = (SqlTransaction)_unit.Transaction;
+            var sqlCommand = (SqlCommand)_unit.Command;
+            sqlCommand.CommandText = $"SELECT * INTO {tempTableName} FROM {dataTableName} WHERE 1 = 2";
+            sqlCommand.ExecuteNonQuery();
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+            {
+                bulkCopy.DestinationTableName = tempTableName;
+                using (var reader = new ObjectReader(type, idList, BulkCopyRepositoryExtension.GetFields(type)))
+                {
+                    bulkCopy.WriteToServer(reader);
+                }
+            }
+            sqlCommand.CommandText = $"DELETE a FROM {dataTableName} AS a INNER JOIN {tempTableName} AS b ON {innerJoin}; DROP TABLE {tempTableName};";
             sqlCommand.ExecuteNonQuery();
         }
 

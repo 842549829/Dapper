@@ -79,7 +79,9 @@ namespace MyDapper.Core
                 try
                 {
                     BulkCopyRepository sqlBulkCopyRepository = new BulkCopyRepository(unitOfWork);
-                    sqlBulkCopyRepository.BatchUpdate(products, m => m.With(m.Name, m.Price));
+                    //sqlBulkCopyRepository.BatchUpdate(products, m => m.With(m.Name, m.Price));
+
+                    sqlBulkCopyRepository.BatchDelete(products);
                     unitOfWork.Complete();
                 }
                 catch (Exception exception)

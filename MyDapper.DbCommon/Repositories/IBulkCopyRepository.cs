@@ -13,5 +13,8 @@ namespace MyDapper.DbCommon.Repositories
         void BatchUpdate<T>(List<T> dataList, string field, string where);
 
         void BatchUpdate<T>(List<T> dataList, params Expression<Func<T, string>>[] predicates);
+
+
+        void BatchDelete<T>(List<T> idList);
     }
 }

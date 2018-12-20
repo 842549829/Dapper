@@ -49,5 +49,10 @@ namespace MyDapper.DbCommon.Repositories
         {
             _bulkCopyRepository.BatchUpdate(dataList, predicates);
         }
+
+        public void BatchDelete<T>(List<T> dataList)
+        {
+            _bulkCopyRepository.BatchDelete(dataList);
+        }
     }
 }
