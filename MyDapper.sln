@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyDapper.Model", "MyDapper.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyDapper.DbCommon", "MyDapper.DbCommon\MyDapper.DbCommon.csproj", "{D3A0F883-6F10-4011-B577-199227C5C5EB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Db.Data", "Db.Data\Db.Data.csproj", "{CACD02AE-180D-4C6F-97F8-41542981217E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{D3A0F883-6F10-4011-B577-199227C5C5EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3A0F883-6F10-4011-B577-199227C5C5EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3A0F883-6F10-4011-B577-199227C5C5EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CACD02AE-180D-4C6F-97F8-41542981217E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CACD02AE-180D-4C6F-97F8-41542981217E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CACD02AE-180D-4C6F-97F8-41542981217E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CACD02AE-180D-4C6F-97F8-41542981217E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

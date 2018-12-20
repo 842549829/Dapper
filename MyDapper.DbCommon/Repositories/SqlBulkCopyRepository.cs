@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Db.Data;
 using FastMember;
 using MyDapper.DbCommon.UnitOfWork;
 
@@ -83,7 +82,7 @@ namespace MyDapper.DbCommon.Repositories
 
         public void BatchUpdate<T>(List<T> dataList, params Expression<Func<T, string>>[] predicates)
         {
-            var fields = DataFactory.ParseColumnPredicates(predicates);
+            var fields = ParseColumnPredicates(predicates);
             StringBuilder updateFields = new StringBuilder();
             for (int i = 0; i < fields.Count; i++)
             {
@@ -115,16 +114,14 @@ namespace MyDapper.DbCommon.Repositories
             sqlCommand.ExecuteNonQuery();
         }
 
-        /// <summary>
-        /// 获取查询条件
-        /// </summary>
-        /// <param name="expression">表达式</param>
-        /// <returns>查询条件</returns>
-        private string GetWhereSql<TValue>(Expression<Func<TValue, bool>> expression)
+        private List<string> ParseColumnPredicates<T>(Expression<Func<T, string>>[] predicates)
         {
-            var dataFactory = new Db.Data.DataFactory(_unit.ProviderName);
-            var whereSql = dataFactory.ParseColumnPredicates(expression);
-            return whereSql;
+            List<string> columns = new List<string>(predicates.Length * 8);
+            foreach (Expression<Func<T, string>> exp in predicates)
+            {
+                columns.AddRange(LambdaHelper.Parse(exp).Split(','));
+            }
+            return columns;
         }
 
         public static string GetProperties(Type type)

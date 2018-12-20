@@ -68,7 +68,7 @@ namespace MyDapper.Core
                 Product product = new Product
                 {
                     Id = list[i],
-                    Name = $"孙菲菲过分规范{i}",
+                    Name = $"撒旦撒旦撒旦所多多所",
                     Price = 500000
                 };
                 products.Add(product);
@@ -79,7 +79,7 @@ namespace MyDapper.Core
                 try
                 {
                     BulkCopyRepository sqlBulkCopyRepository = new BulkCopyRepository(unitOfWork);
-                    sqlBulkCopyRepository.BatchUpdate(products, m => m.Name);
+                    sqlBulkCopyRepository.BatchUpdate(products, m => m.With(m.Name, m.Price));
                     unitOfWork.Complete();
                 }
                 catch (Exception exception)
