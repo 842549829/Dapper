@@ -41,7 +41,7 @@ namespace MyDapper.Core.BatchOperation
                 Product product = new Product
                 {
                     Id = list[i],
-                    Name = $"默认{i}",
+                    Name = $"快递费剪短发方法结果分拣赶紧发{i}",
                     Price = (decimal)i * 5
                 };
                 products.Add(product);
@@ -69,7 +69,8 @@ namespace MyDapper.Core.BatchOperation
                         try
                         {
                             command.Transaction = transaction;
-                            command.CommandText = "CREATE TABLE #TmpTable(Id varchar(36),Name varchar(255),Price decimal(18,4))";
+                            command.CommandText = $"SELECT * INTO #TmpTable FROM {destinationTableName} WHERE 1 = 2";
+                            //command.CommandText = "CREATE TABLE #TmpTable(Id varchar(36),Name varchar(255),Price decimal(18,4))";
                             command.ExecuteNonQuery();
                             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
                             {
@@ -83,7 +84,7 @@ namespace MyDapper.Core.BatchOperation
                             command.ExecuteNonQuery();
                             transaction.Commit();
                         }
-                        catch (Exception)
+                        catch (Exception exception)
                         {
                             transaction.Rollback();
                         }
@@ -150,7 +151,7 @@ namespace MyDapper.Core.BatchOperation
         public static void Inserts()
         {
             const int count = 10000;
-            List<Order> orders = new List<Order>();
+            List<Orders> orders = new List<Orders>();
             List<Product> products = new List<Product>();
             for (var i = 0; i < count; i++)
             {
@@ -161,7 +162,7 @@ namespace MyDapper.Core.BatchOperation
                     Price = i * 0.8M
                 };
                 products.Add(product);
-                Order order = new Order
+                Orders order = new Orders
                 {
                     Id = Guid.NewGuid().ToString(),
                     ProductId = product.Id,
@@ -284,7 +285,7 @@ namespace MyDapper.Core.BatchOperation
         public static void Inserts()
         {
             const int count = 10000;
-            List<Order> orders = new List<Order>();
+            List<Orders> orders = new List<Orders>();
             List<Product> products = new List<Product>();
             for (var i = 0; i < count; i++)
             {
@@ -295,7 +296,7 @@ namespace MyDapper.Core.BatchOperation
                     Price = i * 0.8M
                 };
                 products.Add(product);
-                Order order = new Order
+                Orders order = new Orders
                 {
                     Id = Guid.NewGuid().ToString(),
                     ProductId = product.Id,
@@ -313,9 +314,9 @@ namespace MyDapper.Core.BatchOperation
             };
             var ordersItems = new Items
             {
-                Type = typeof(Order),
+                Type = typeof(Orders),
                 Enumerable = orders,
-                Members = new[] { nameof(Order.Id), nameof(Order.ProductId), nameof(Order.Status), nameof(Order.Remake) }
+                Members = new[] { nameof(Orders.Id), nameof(Orders.ProductId), nameof(Orders.Status), nameof(Orders.Remake) }
             };
             Dictionary<string, Items> items = new Dictionary<string, Items>
             {

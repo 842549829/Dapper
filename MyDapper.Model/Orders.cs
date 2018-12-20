@@ -1,6 +1,6 @@
 ﻿namespace MyDapper.Model
 {
-    public class Order
+    public class Orders
     {
         public string Id { get; set; }
 

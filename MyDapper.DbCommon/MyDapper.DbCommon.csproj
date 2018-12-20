@@ -2,9 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>MyDapper.Model</AssemblyName>
-    <RootNamespace>MyDapper.Model</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastMember" Version="1.4.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Db.Data\Db.Data.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations">

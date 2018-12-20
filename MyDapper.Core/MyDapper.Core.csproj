@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MyDapper.DbCommon\MyDapper.DbCommon.csproj" />
     <ProjectReference Include="..\MyDapper.Model\MyDapper.Model.csproj" />
   </ItemGroup>
 
