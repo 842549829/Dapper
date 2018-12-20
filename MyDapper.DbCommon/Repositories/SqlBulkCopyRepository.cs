@@ -94,7 +94,7 @@ namespace MyDapper.DbCommon.Repositories
             var id = GetProperties(type);
             var innerJoin = $"T.{id}=Temp.{id}";
 
-            var tempTableName = "#TmpTable";
+            var tempTableName = $"#TmpTable{type.Name}";
             var dataTableName = BulkCopyRepositoryExtension.GetTableName(type);
             var sqlConnection = (SqlConnection)_unit.Connection;
             var sqlTransaction = (SqlTransaction)_unit.Transaction;
