@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -193,7 +194,7 @@ namespace MyDapper.Core.BatchOperation
                 {
                     connection.Open();
                 }
-                
+
                 using (SqlTransaction transaction = connection.BeginTransaction())
                 {
                     try
@@ -276,6 +277,94 @@ namespace MyDapper.Core.BatchOperation
                 using (var reader = ObjectReader.Create(products, copyParameters))
                 {
                     sqlCopy.WriteToServer(reader);
+                }
+            }
+        }
+
+        public static void Inserts()
+        {
+            const int count = 10000;
+            List<Order> orders = new List<Order>();
+            List<Product> products = new List<Product>();
+            for (var i = 0; i < count; i++)
+            {
+                Product product = new Product
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = $"商品{i}",
+                    Price = i * 0.8M
+                };
+                products.Add(product);
+                Order order = new Order
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ProductId = product.Id,
+                    Remake = "suggestions",
+                    Status = 1
+                };
+                orders.Add(order);
+            }
+
+            var productsItems = new Items
+            {
+                Type = typeof(Product),
+                Enumerable = products,
+                Members = new[] { nameof(Product.Id), nameof(Product.Name), nameof(Product.Price) }
+            };
+            var ordersItems = new Items
+            {
+                Type = typeof(Order),
+                Enumerable = orders,
+                Members = new[] { nameof(Order.Id), nameof(Order.ProductId), nameof(Order.Status), nameof(Order.Remake) }
+            };
+            Dictionary<string, Items> items = new Dictionary<string, Items>
+            {
+
+                { "Product", productsItems},
+                { "Orders",ordersItems}
+            };
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Inserts(SqLiteHelper.SqlServerConnection, items);
+            stopwatch.Stop();
+            Console.WriteLine("耗时：" + stopwatch.ElapsedMilliseconds);
+        }
+
+
+        public static void Inserts(string connectionString, Dictionary<string, Items> items, int batchSize = 0)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                }
+
+                using (SqlTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (var item in items)
+                        {
+                            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
+                            {
+                                bulkCopy.BatchSize = batchSize;
+                                bulkCopy.DestinationTableName = item.Key;
+                                using (var reader = new ObjectReader(item.Value.Type, item.Value.Enumerable, item.Value.Members))
+                                {
+                                    bulkCopy.WriteToServer(reader);
+                                }
+                            }
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Console.WriteLine(ex.Message);
+                        transaction.Rollback();
+                    }
                 }
             }
         }

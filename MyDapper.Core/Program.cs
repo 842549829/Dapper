@@ -7,7 +7,7 @@ namespace MyDapper.Core
     {
         static void Main(string[] args)
         {
-            BatchExtension.Insert();
+            BatchExtension.Inserts();
         }
     }
 }
